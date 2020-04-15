@@ -53,7 +53,7 @@ def predictor(injuryDf,playerDf,injuryKind=None,allstar=None,games=None,position
         s+="injuryKind = "+'\033[1m'+injuryKind+'\033[0m'
         print('\033[1m'+"Testing:"+'\033[0m'+" "+s+"\n")
         print("Testing using data from",'\033[1m'+str(len(playerDf))+'\033[0m',"games.\n")
-        print(len(injuryDf),len(injuryDf[injuryDf['Notes']=='elbow']))
+        #print(len(injuryDf),len(injuryDf[injuryDf['Notes']=='elbow']))
         biggest.append(getBigger(injuryKind,injuryDf[injuryDf['Notes']==injuryKind],playerDf,repeated))
     quant = 0.0000000000001
     #try:
@@ -97,7 +97,7 @@ def predictor(injuryDf,playerDf,injuryKind=None,allstar=None,games=None,position
                     if i[0]>0 and i[0]<games:
                         points+=3*i[-8]
                         points+=2*i[-7]
-                        points+=i[-6]
+                        points+=float(i[-6])
                         points+=1.2*i[-5]
                         points+=1.5*i[-4]
                         points+=2*i[-3]
@@ -114,7 +114,7 @@ def predictor(injuryDf,playerDf,injuryKind=None,allstar=None,games=None,position
                         points=0
                         points+=3*i[-8]
                         points+=2*i[-7]
-                        points+=i[-6]
+                        points+=float(i[-6])
                         points+=1.2*i[-5]
                         points+=1.5*i[-4]
                         points+=2*i[-3]
@@ -139,7 +139,7 @@ def predictor(injuryDf,playerDf,injuryKind=None,allstar=None,games=None,position
             print("On the",'\033[1m'+"'{0}'".format(key)+'\033[0m',"game, we predict",'\033[1m'+"'{0}'".format(value[0]/value[1])+'\033[0m',"points.")
 
 def getBigger(ij,injuryDf,playerDf,repeated=None):
-    print("here",len(injuryDf))
+    #print("here",len(injuryDf))
     import pandas as pd
     pd.set_option('display.max_columns', 500)
     import matplotlib.pyplot as plt
@@ -248,6 +248,6 @@ def getBigger(ij,injuryDf,playerDf,repeated=None):
                     #print(i)
             #except:
                 #print(player) # This means something weird happened, so print the players name
-    print({ij:bigger})
+    #print({ij:bigger})
     #if [e,i for e,i in {ij:bigger}]
     return {ij:bigger}
