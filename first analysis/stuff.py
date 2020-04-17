@@ -1,4 +1,4 @@
-def predictor(injuryDf,playerDf,injuryKind=None,allstar=None,games=None,position=None,agg=None,repeated=None):
+def predictor(injuryDf,playerDf,injuryKind=None,allstar=None,games=None,position=None,agg=None,repeated=None,root=None,canvas=None):
     import pandas as pd
     pd.set_option('display.max_columns', 500)
     import matplotlib.pyplot as plt
@@ -6,6 +6,7 @@ def predictor(injuryDf,playerDf,injuryKind=None,allstar=None,games=None,position
     import numpy as np
     import warnings
     warnings.filterwarnings('ignore')
+    ret = []
     if games==None:
         games=4
     else:
@@ -19,40 +20,43 @@ def predictor(injuryDf,playerDf,injuryKind=None,allstar=None,games=None,position
             playerDf = playerDf[playerDf['playPos']==position].append(playerDf[playerDf['playPos']=='PF']).append(playerDf[playerDf['playPos']=='SF'])
         else:
             playerDf = playerDf[playerDf['playPos']==position]
-        s+="position = "+'\033[1m'+position+'\033[0m'
+        s+="position = "+position+'\n'
     else:
-        s+="position = "+'\033[1m'+"all"+'\033[0m'
+        s+="position = all"+'\n'
     if allstar!=None:
         playerDf = playerDf[playerDf['allstar']==allstar]
-        if len(s)!=0:
-            s+=", "
-        s+="allstar = "+'\033[1m'+str(allstar)+'\033[0m'
+        #if len(s)!=0:
+        #    s+=", "
+        s+="allstar = "+str(allstar)+'\n'
     if games !=None:
-        if len(s)!=0:
-            s+=", "
-        s+="games = "+'\033[1m'+str(games)+'\033[0m'
+        #if len(s)!=0:
+        #    s+=", "
+        s+="games = "+str(games)+'\n'
     if repeated !=None:
-        if len(s)!=0:
-            s+=", "
-        s+="repeated = "+'\033[1m'+str(repeated)+'\033[0m'
+        #if len(s)!=0:
+        #    s+=", "
+        s+="repeated = "+str(repeated)+'\n'
     
     if injuryKind == None:
-        if len(s)!=0:
-            s+=", "
-        s+="injuryKind = "+'\033[1m'+"all"+'\033[0m'
+        #if len(s)!=0:
+        #    s+=", "
+        s+="injuryKind = all"+'\n'
         #print("No injury specified")
-        print('\033[1m'+"Testing:"+'\033[0m'+" "+s+"\n")
-        print("Testing using data from",'\033[1m'+str(len(playerDf))+'\033[0m',"games.\n")
+        print("Testing:\n"+s+"\n")
+        canvas.create_text(440,130,text="Testing: "+s, font = "-size 22",fill='white')
+        print("Testing using data\nfrom ",str(len(playerDf)),"games.\n")
         for typeof in injuryDf['Notes'].value_counts()[1:13].index: # For each type of injury
             df_injury = injuryDf[injuryDf['Notes']==typeof] #               Then filter the df
             biggest.append(getBigger(typeof,df_injury,playerDf,repeated))
             
     else:
-        if len(s)!=0:
-            s+=", "
-        s+="injuryKind = "+'\033[1m'+injuryKind+'\033[0m'
+        #if len(s)!=0:
+        #    s+=", "
+        s+="injuryKind = "+injuryKind+'\n'
         print('\033[1m'+"Testing:"+'\033[0m'+" "+s+"\n")
+        canvas.create_text(440,130,text="Testing:\n"+s, font = "-size 18")
         print("Testing using data from",'\033[1m'+str(len(playerDf))+'\033[0m',"games.\n")
+        canvas.create_text(440,190,text="Testing using data\nfrom "+str(len(playerDf))+" games", font = "-size 18")
         #print(len(injuryDf),len(injuryDf[injuryDf['Notes']=='elbow']))
         biggest.append(getBigger(injuryKind,injuryDf[injuryDf['Notes']==injuryKind],playerDf,repeated))
     quant = 0.0000000000001
@@ -81,12 +85,17 @@ def predictor(injuryDf,playerDf,injuryKind=None,allstar=None,games=None,position
     #pass
     if quant==0:
         print('\033[1m'+"Score:"+'\033[0m',quant,"\nThere is no data available based off of the inputted parameters. Try expanding your search parameters.\n")
+        canvas.create_text(440,270,text="Score: "+str(quant)+"\nThere is no data\navailable based off\nof the inputted\nparameters. Try\nexpanding your search\nparameters.\n"+s, font = "-size 18")
     elif quant<=5:
         print('\033[1m'+"Score:"+'\033[0m',quant,"\nThe data could be somewhat unreliable. Try expanding parameters, or know that this may not be the best predictor for this case.\n")
+        canvas.create_text(440,270,text="Score: "+str(quant)+"\nThe data could be\nsomewhat unreliable. Try\nexpanding parameters,\nor know that this may\nnot be the best\npredictor for this\ncase.\n", font = "-size 22",fill='white')
     elif quant<=10:
         print('\033[1m'+"Score:"+'\033[0m',quant,"\nThe data should be somewhat accurate, due to not a ton available.\n")
+        canvas.create_text(440,270,text="Score: "+str(quant)+"\nThe data should be\nsomewhat accurate,\ndue to some data\navailable.\n", font = "-size 22",fill='white')
+        
     else:
         print('\033[1m'+"Score:"+'\033[0m',quant,"\nThe data should be pretty accurate.\n")
+        canvas.create_text(440,270,text="Score: "+str(quant)+"\nThe data should be\npretty accurate.\n", font = "-size 18",fill='white')
     if agg:
 
         points=0
@@ -129,14 +138,17 @@ def predictor(injuryDf,playerDf,injuryKind=None,allstar=None,games=None,position
                             d[i[0]][1]+=1
         for key,value in d.items():
             if key==1:
-                key = '1st'
+                n = '1st'
             elif key==2:
-                key='2nd'
+                n='2nd'
             elif key==3:
-                key='3rd'
+                n='3rd'
             else:
-                key=str(key)+'th'
-            print("On the",'\033[1m'+"'{0}'".format(key)+'\033[0m',"game, we predict",'\033[1m'+"'{0}'".format(value[0]/value[1])+'\033[0m',"points.")
+                n=str(key)+'th'
+            m = "On the {0} ".format(n)+"game, we predict\n{0}".format(str(value[0]/value[1])[:5])+" points."
+            print(m)
+            canvas.create_text(440,270+40*key,text=m, font = "-size 14",fill='white')
+            
 
 def getBigger(ij,injuryDf,playerDf,repeated=None):
     #print("here",len(injuryDf))
@@ -206,9 +218,9 @@ def getBigger(ij,injuryDf,playerDf,repeated=None):
                         except:# If we get to this point, it means it couldnt find a previous game of that number
                             #print("row")
                             print(player,"NOT added")
-                            if typeof=='wrist':
+                            #if typeof=='wrist':
                                 #print(daterange,date,fn,ln,game_injury_index)
-                                pass # E.g. It couldnt find the 7th previous game to the injury
+                            #    pass # E.g. It couldnt find the 7th previous game to the injury
 
                         try:
                             row = b.loc[daterange+6+g]
